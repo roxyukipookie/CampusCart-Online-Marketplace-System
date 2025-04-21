@@ -209,7 +209,7 @@ I hope to become a developer in the future so I could help my family. To God be 
 
 ---
 ## Top Contributors
-<a href="https://github.com/KianaDelMar/IT342-CampusCart/graphs/contributors">
+<a href="https://github.com/roxyukipookie/CampusCart-Online-Marketplace-System/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=eynabdllh/pet-adoption-system" alt="contrib.rocks image" />
 </a>
 
