@@ -17,7 +17,6 @@ import {
 import { Person, Lock } from '@mui/icons-material';
 import logo from '../../assets/img/logo-text.png';
 import cit from '../../assets/img/cit-1.jpg';
-import GoogleSignIn from '../../components/GoogleSignIn';
 
 const StudentLogin = () => {
     const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -204,8 +203,6 @@ const StudentLogin = () => {
                     >
                         Login
                     </Button>
-
-                    <GoogleSignIn />
 
                     <Typography variant="body2" sx={{ mt: 2 }}>
                         Don't have an account?{' '}

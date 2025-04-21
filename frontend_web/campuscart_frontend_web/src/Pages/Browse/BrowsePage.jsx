@@ -177,7 +177,7 @@ const BrowsePage = () => {
         const fetchFilteredProducts = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(
+                const response = await api.get(
                     `http://localhost:8080/api/product/getAllProductsFilter/${loggedInUser}`,
                     {
                         params: {
