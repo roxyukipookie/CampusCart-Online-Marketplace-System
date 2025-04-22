@@ -21,6 +21,8 @@ const AdminSettings = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [toasts, setToasts] = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  const [openConfirmUpdate, setOpenConfirmUpdate] = useState(false);
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
 
   const toggleEditMode = () => {
     setEditMode((prev) => !prev);
@@ -32,6 +34,22 @@ const AdminSettings = () => {
   
   const handleCloseModal = () => {
     setOpenModal(false);
+  };
+
+  const handleOpenConfirmUpdate = () => {
+    setOpenConfirmUpdate(true);
+  };
+
+  const handleCloseConfirmUpdate = () => {
+    setOpenConfirmUpdate(false);
+  };
+
+  const handleOpenConfirmDelete = () => {
+    setOpenConfirmDelete(true);
+  };
+
+  const handleCloseConfirmDelete = () => {
+    setOpenConfirmDelete(false);
   };
   
   const handleChangePassword = () => {
@@ -57,13 +75,13 @@ const AdminSettings = () => {
     formData.append('file', profileImage);
 
     try {
-      const response = await api.post(`http://localhost:8080/api/admin/uploadProfilePhoto/${username}`, formData, {
+      const response = await api.post(`/admin/uploadProfilePhoto/${username}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       if (response.status === 200) {
         showToast('Profile picture updated successfully!', 'success');
-        setPreviewImage(response.data.fileName);
+        setPreviewImage(`http://localhost:8080/uploads/${response.data.fileName}`);
       }
     } catch (error) {
       console.error('Error uploading profile photo: ', error);
@@ -87,7 +105,7 @@ const AdminSettings = () => {
 
     try {
         const username = sessionStorage.getItem('username'); 
-        const response = await api.put(`http://localhost:8080/api/admin/changePassword/${username}`, {
+        const response = await api.put(`/admin/changePassword/${username}`, {
             currentPassword,
             newPassword,
         });
@@ -106,12 +124,10 @@ const AdminSettings = () => {
 };
 
   const handleSave = async () => {
-    showToast('Are you sure you want to update your account?', 'info');
-
     try {
       const updatedData = { firstName, lastName, email, contactNo };
       const username = sessionStorage.getItem('username');
-      const response = await api.put(`http://localhost:8080/api/admin/putAdminRecord/${username}`, updatedData);
+      const response = await api.put(`/admin/putAdminRecord/${username}`, updatedData);
 
       if (response.status === 200) {
         sessionStorage.setItem('firstName', firstName);
@@ -120,7 +136,7 @@ const AdminSettings = () => {
         sessionStorage.setItem('contactNo', contactNo);
 
         setEditMode(false);
-        showToast('Admin record updated successfully!', 'success');
+        showToast('Profile updated successfully!', 'success');
       }
     } catch (error) {
       console.error('Error updating user data:', error);
@@ -129,16 +145,14 @@ const AdminSettings = () => {
   };
 
   const handleDeleteAccount = async () => {
-    showToast('Are you sure you want to delete your account? This action cannot be undone.', 'info');
-
     const username = sessionStorage.getItem('username');
     try {
-      const response = await api.delete(`http://localhost:8080/api/admin/deleteAdminRecord/${username}`);
+      const response = await api.delete(`/admin/deleteAdminRecord/${username}`);
 
       if (response.status === 200) {
         showToast(response.data, 'success');
         sessionStorage.clear();
-        window.location.href = '/';
+        window.location.href = '/admin';
       } else {
         console.error('Error deleting user account:', response.statusText);
       }
@@ -162,7 +176,7 @@ const AdminSettings = () => {
     const fetchProfileData = async () => {
         const username = sessionStorage.getItem('username');
         try {
-            const response = await api.get(`http://localhost:8080/api/admin/getAdminRecord/${username}`);
+            const response = await api.get(`/admin/getAdminRecord/${username}`);
             console.log(response.data);
             if (response.status === 200) {
                 const { firstName, lastName, email, contactNo, profilePhoto } = response.data;
@@ -174,7 +188,7 @@ const AdminSettings = () => {
                 setContactNo(contactNo);
 
                 if (profilePhoto) {
-                  setPreviewImage(`http://localhost:8080/profile-images/${profilePhoto}`);
+                  setPreviewImage(`http://localhost:8080/uploads/${profilePhoto}`);
               }
             }
         } catch (error) {
@@ -348,18 +362,56 @@ const AdminSettings = () => {
 
         <Button
           variant="outlined"
-          onClick={editMode ? handleSave : toggleEditMode}
+          onClick={editMode ? handleOpenConfirmUpdate : toggleEditMode}
           sx={{ mt: 3, color: 'black', borderColor: 'rgba(0, 0, 0, 0.23)', borderRadius: '20px', textTransform: 'none' }}
         >
           {editMode ? 'Save Changes' : 'Edit Information'}
         </Button>
         <Button
           variant="outlined"
-          onClick={handleDeleteAccount}
+          onClick={handleOpenConfirmDelete}
           sx={{ mt: 3, color: 'black', borderColor: 'rgba(0, 0, 0, 0.23)', borderRadius: '20px', textTransform: 'none', marginLeft: '5px' }}
         >
           Delete Account
         </Button>
+
+        {/* Update Confirmation Dialog */}
+        <Dialog open={openConfirmUpdate} onClose={handleCloseConfirmUpdate}>
+          <DialogTitle>Confirm Update</DialogTitle>
+          <DialogContent>
+            <Typography>Are you sure you want to update your account information?</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirmUpdate} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              handleCloseConfirmUpdate();
+              handleSave();
+            }} color="primary" variant="contained">
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={openConfirmDelete} onClose={handleCloseConfirmDelete}>
+          <DialogTitle>Confirm Account Deletion</DialogTitle>
+          <DialogContent>
+            <Typography>Are you sure you want to delete your account? This action cannot be undone.</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirmDelete} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              handleCloseConfirmDelete();
+              handleDeleteAccount();
+            }} color="error" variant="contained">
+              Delete Account
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Paper>
 
       <ToastManager toasts={toasts} handleClose={(id) => {

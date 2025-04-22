@@ -59,7 +59,9 @@ const ProtectedUserRoute = ({ children }) => {
 
 const App = () => {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin') && location.pathname !== '/admin';
+  const isAdminRoute = location.pathname.startsWith('/admin') && 
+                      location.pathname !== '/admin' && 
+                      location.pathname !== '/admin/';
 
   return (
     <>
@@ -70,6 +72,7 @@ const App = () => {
            location.pathname !== '/login' && 
            location.pathname !== '/register' && 
            location.pathname !== '/admin' &&
+           location.pathname !== '/admin/' &&
            <MarketplaceHeader />}
           
           {isAdminRoute && <AdminHeader />}

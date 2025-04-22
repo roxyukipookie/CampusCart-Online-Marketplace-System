@@ -1,9 +1,11 @@
 package edu.cit.campuscart.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 public class UserEntity {
@@ -18,13 +20,16 @@ public class UserEntity {
     private String password;
     private String profilePhoto;
     private Long id;
+    
+    private String googleId;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // ensures that when a seller is deleted, all associated products will also be deleted
     @JsonManagedReference
     private List<ProductEntity> products;
 
-    @OneToMany(mappedBy = "user")
-    private List<NotificationEntity> notifications;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<NotificationEntity> notifications = new ArrayList<>();
 
     public UserEntity() {
         super();
@@ -112,6 +117,14 @@ public class UserEntity {
 
     public void setProducts(List<ProductEntity> products) {
         this.products = products;
+    }
+    
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
     }
 
     // Getters and setters

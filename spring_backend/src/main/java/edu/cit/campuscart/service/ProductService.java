@@ -79,11 +79,12 @@ public class ProductService {
 		return product.orElse(null);
 	}
 	
-	public List<ProductEntity> getFilteredProducts(String category, String status, String conditionType) {
-		Specification<ProductEntity> spec = Specification.where(ProductSpecifications.hasCategory(category))
-				.and(ProductSpecifications.hasStatus(status))
-				.and(ProductSpecifications.hasConditionType(conditionType));
-
+	public List<ProductEntity> getFilteredProducts(String username, String category, String status, String conditionType) {
+		Specification<ProductEntity> spec = Specification.where(ProductSpecifications.hasStatus("Approved")) // force approved only
+            .and(ProductSpecifications.hasCategory(category))
+            .and(ProductSpecifications.hasConditionType(conditionType))
+            .and(ProductSpecifications.userNot(username)); // exclude product of the passed user
+	
 		return prepo.findAll(spec);
 	}
 	
