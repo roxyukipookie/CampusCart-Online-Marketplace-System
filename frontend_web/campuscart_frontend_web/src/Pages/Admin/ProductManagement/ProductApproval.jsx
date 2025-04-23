@@ -19,7 +19,7 @@ const columns = [
   { id: 'status', label: 'Approval Status', minWidth: 170, sortable: false },
 ];
 
-const createData = (productName, user, productCode, category, status, image) => {
+const createData = (productName, user, productCode, category, status, image, feedback) => {
   const formatStatus = (status) => {
     if (status === 'approved') return 'Approved';
     if (status === 'rejected') return 'Rejected';
@@ -30,7 +30,7 @@ const createData = (productName, user, productCode, category, status, image) => 
 
   const imageUrl = image ? `http://localhost:8080/${image}` : null;
 
-  return { productName, user, productCode, category, status: formatStatus(status), image: imageUrl };
+  return { productName, user, productCode, category, status: formatStatus(status), image: imageUrl, feedback };
 };
 
 const ProductApproval = () => {
@@ -48,6 +48,8 @@ const ProductApproval = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const [openRejectDialog, setOpenRejectDialog] = useState(false);
+  const [rejectFeedback, setRejectFeedback] = useState('');
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -57,12 +59,13 @@ const ProductApproval = () => {
         console.log("Products: ", response.data)
         const productData = response.data.map((product) =>
           createData(
-            product.productName,
+            product.name,
             product.userUsername,
             product.productCode,
             product.category,
             product.status,
-            product.image
+            product.image,
+            product.feedback
           )
         );
         setProducts(productData);
@@ -92,10 +95,10 @@ const ProductApproval = () => {
     }
   };
 
-  const handleRejectInModal = async () => {
+  const handleRejectInModal = () => {
     if (selectedProduct) {
-      await handleReject(selectedProduct.productCode);
-      handleCloseModal(); // Close modal after rejection
+      setOpenModal(false); // Close the product details modal
+      setOpenRejectDialog(true); // Open the rejection feedback dialog
     }
   };
 
@@ -127,8 +130,16 @@ const ProductApproval = () => {
   };
 
   const handleReject = async (productCode) => {
+    if (!rejectFeedback.trim()) {
+      showToast('Please provide feedback for rejection', 'error');
+      return;
+    }
+
     try {
-      const response = await api.post('/product/reject', { productCode });
+      const response = await api.post('/product/reject', { 
+        productCode,
+        feedback: rejectFeedback 
+      });
       showToast('Product rejected successfully!', 'success');
 
       setProducts((prevProducts) => {
@@ -140,9 +151,22 @@ const ProductApproval = () => {
         updateSummary(updatedProducts);
         return updatedProducts;
       });
+      
+      setOpenRejectDialog(false);
+      setRejectFeedback('');
     } catch (error) {
       showToast('Error rejecting product', 'error');
     }
+  };
+
+  const handleRejectClick = (productCode) => {
+    setSelectedProduct(products.find(p => p.productCode === productCode));
+    setOpenRejectDialog(true);
+  };
+
+  const handleCloseRejectDialog = () => {
+    setOpenRejectDialog(false);
+    setRejectFeedback('');
   };
 
   const handleChangePage = (event, newPage) => {
@@ -180,69 +204,6 @@ const ProductApproval = () => {
 
       return matchesSearch && matchesStatus;
     });
-  };
-
-  const getStatusChipProps = (status) => {
-    const props = {
-      label: status === 'Blocked' || status === 'Block' ? 'Blocked' : status,
-      sx: {
-        width: '80px',
-        height: '24px',
-        color: 'white',
-        fontWeight: 500,
-        '& .MuiChip-label': {
-          color: 'white',
-          padding: 0,
-          display: 'flex',
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '15px',
-          marginTop: '18px'
-        }
-      }
-    };
-
-    switch (status) {
-      case 'Pending':
-        return {
-          ...props,
-          sx: {
-            ...props.sx,
-            bgcolor: '#28a745',
-            '&:hover': { bgcolor: '#28a745' }
-          }
-        };
-        case 'Sold':
-          return {
-            ...props,
-            sx: {
-              ...props.sx,
-              bgcolor: '#a9a9b0',
-              '&:hover': { bgcolor: '#a9a9b0' }
-            }
-          };
-      case 'Approved':
-        return {
-          ...props,
-          sx: {
-            ...props.sx,
-            bgcolor: '#007bff',
-            '&:hover': { bgcolor: '#007bff' }
-          }
-        };
-      case 'Rejected':
-        return {
-          ...props,
-          sx: {
-            ...props.sx,
-            bgcolor: '#dc3545',
-            '&:hover': { bgcolor: '#dc3545' }
-          }
-        };
-      default:
-        return props;
-    }
   };
 
   const handleRequestSort = (event, property) => {
@@ -599,7 +560,7 @@ const ProductApproval = () => {
                       disabled={row.status === 'Rejected' || row.status === 'Sold'}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleReject(row.productCode);
+                        handleRejectClick(row.productCode);
                       }}
                       sx={{
                         borderRadius: 1,
@@ -651,7 +612,8 @@ const ProductApproval = () => {
               PaperProps={{
                 sx: {
                   borderRadius: '12px',
-                  padding: '16px'
+                  padding: '16px',
+                  maxHeight: '90vh'
                 }
               }}
             >
@@ -749,9 +711,20 @@ const ProductApproval = () => {
                             <Typography variant="subtitle2" color="text.secondary">
                               Status
                             </Typography>
-                            <Typography variant="body1" sx={{ mb: 2, fontWeight: 500 }}>
-                              {selectedProduct.status}
-                            </Typography>
+                            <Box sx={{ mb: 2 }}>
+                              <Chip
+                                label={selectedProduct.status}
+                                sx={{
+                                  bgcolor: 
+                                    selectedProduct.status === 'Approved' ? '#28a745' :
+                                    selectedProduct.status === 'Rejected' ? '#dc3545' :
+                                    selectedProduct.status === 'Pending' ? '#ff9800' :
+                                    '#757575',
+                                  color: 'white',
+                                  fontWeight: 500
+                                }}
+                              />
+                            </Box>
                           </Grid>
                         </Grid>
                       </Box>
@@ -798,6 +771,80 @@ const ProductApproval = () => {
                 </Button>
               </DialogActions>
             </Dialog>
+
+      {/* Reject Confirmation Dialog */}
+      <Dialog
+        open={openRejectDialog}
+        onClose={handleCloseRejectDialog}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '12px',
+            padding: '16px'
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          borderBottom: '1px solid #e0e0e0',
+          pb: 2,
+          fontSize: '1.5rem',
+          fontWeight: 600,
+          color: '#dc3545'
+        }}>
+          Reject Product
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Are you sure you want to reject this product?
+          </Typography>
+          <Typography variant="subtitle2" sx={{ mb: 1, color: '#666' }}>
+            Product: {selectedProduct?.productName}
+          </Typography>
+          <Typography variant="subtitle2" sx={{ mb: 1, color: '#666' }}>
+            Seller: {selectedProduct?.user}
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            rows={4}
+            label="Rejection Feedback"
+            value={rejectFeedback}
+            onChange={(e) => setRejectFeedback(e.target.value)}
+            placeholder="Please provide feedback for rejection..."
+            sx={{ mt: 2 }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ 
+          borderTop: '1px solid #e0e0e0',
+          pt: 2,
+          px: 3 
+        }}>
+          <Button 
+            onClick={handleCloseRejectDialog} 
+            variant="outlined"
+            sx={{ 
+              borderColor: '#666',
+              color: '#666',
+              '&:hover': {
+                borderColor: '#444',
+                backgroundColor: 'rgba(0, 0, 0, 0.04)'
+              }
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={() => handleReject(selectedProduct?.productCode)}
+            variant="contained"
+            color="error"
+            sx={{ ml: 1 }}
+            disabled={!rejectFeedback.trim()}
+          >
+            Reject
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Toast Messages */}
       <ToastManager toasts={toasts} handleClose={(id) => {

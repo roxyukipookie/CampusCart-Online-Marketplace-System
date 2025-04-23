@@ -1,7 +1,7 @@
 package edu.cit.campuscart.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
+import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 
 @Entity
 @Table(name="products")
@@ -26,6 +27,10 @@ public class ProductEntity {
     private String status; 
     private String conditionType;
     
+    @Column(name = "feedback", length = 1000, columnDefinition = "TEXT")
+    private String feedback;
+    private LocalDateTime createdAt;
+    
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_username", nullable = false)
     @JsonBackReference
@@ -35,7 +40,7 @@ public class ProductEntity {
         super();
     }
 
-    public ProductEntity(int code, String name, String pdtDescription, int qtyInStock, float buyPrice, String imagePath, String category, String status, String conditionType, UserEntity user) {
+    public ProductEntity(int code, String name, String pdtDescription, int qtyInStock, float buyPrice, String imagePath, String category, String status, String conditionType, String feedback, UserEntity user) {
         super();
         this.code = code;
         this.name = name;
@@ -46,6 +51,7 @@ public class ProductEntity {
         this.category = category;
         this.status = status;
         this.conditionType = conditionType;
+        this.feedback = feedback;
         this.user = user;
     }
 
@@ -133,4 +139,11 @@ public class ProductEntity {
         return user != null ? user.getProfilePhoto() : null;
     }
 
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
 }
