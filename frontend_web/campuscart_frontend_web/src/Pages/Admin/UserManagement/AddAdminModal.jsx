@@ -76,7 +76,6 @@ const AddAdminModal = ({ open, onClose, onAdd }) => {
     }
 
     try {
-      console.log('Sending admin data:', formData);
 
       const response = await api.post('/admin/addAdmin', {
         username: formData.username,
@@ -87,8 +86,6 @@ const AddAdminModal = ({ open, onClose, onAdd }) => {
         email: formData.email,
         role: 'Admin'
       });
-      
-      console.log('Admin creation response:', response);
       
       // Check for both 200 and 201 status codes
       if (response.status === 200 || response.status === 201) {

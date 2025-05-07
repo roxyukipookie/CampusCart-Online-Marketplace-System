@@ -69,7 +69,6 @@ const ChatPage = () => {
                 }
 
                 if (partnerToSelect && user.username !== partnerToSelect) {
-                    console.log('Attempting to create channel:', user.username, partnerToSelect);
                     let existingChannel = null;
                     if (channelUrlToSelect) {
                         existingChannel = await getChannelByUrl(channelUrlToSelect);
@@ -107,7 +106,6 @@ const ChatPage = () => {
         if (!user) return;
         const handler = {
             onMessageReceived: (channel, message) => {
-                console.log('New message received:', message);
                 setMessages(prev => [...prev, message]);
             }
         };
@@ -119,9 +117,7 @@ const ChatPage = () => {
 
     // Send message
     const handleSendMessage = async () => {
-        console.log('Send button clicked', { newMessage, channel });
         if (!newMessage.trim() || !channel) {
-            console.log('Cannot send: message or channel missing');
             return;
         }
         try {

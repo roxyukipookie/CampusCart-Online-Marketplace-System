@@ -33,7 +33,7 @@ import edu.cit.campuscart.util.JwtUtil;
 
 @RestController
 @RequestMapping("/api/user")
-//@CrossOrigin(origins = { "http://localhost:3000", "https://campuscartonlinemarketplace.vercel.app" })  // Allow CORS from React app
+//@CrossOrigin(origins = { "http://localhost:3000", "https://campuscartonlinemarketplace.vercel.app" })  
 public class UserController {
 	@Autowired
 	private UserService userService;
@@ -42,11 +42,6 @@ public class UserController {
 	
 	private static final String UPLOAD_DIR = System.getProperty("user.home") + "/Downloads/uploads";
 	
-	  @GetMapping("/test")
-  	public String test() {
-      return "Backend is working!";
-  	}
-
 	//CREATE
 	@PostMapping("/postUserRecord")
 	public ResponseEntity<?> postUserRecord(@RequestBody UserEntity user) throws NameAlreadyBoundException {

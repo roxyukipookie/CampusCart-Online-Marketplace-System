@@ -10,8 +10,6 @@ const sb = new SendBird({
 export const connectUser = async (userId, nickname) => {
     try {
         const user = await sb.connect(userId);
-        console.log('Successfully connected to SendBird:', user);
-        console.log('Application ID: ', APP_ID); 
         await sb.updateCurrentUserInfo(nickname, null);
         return user;
     } catch (error) {
@@ -27,12 +25,10 @@ export const createChannel = async (userId, otherUserId) => {
     }
     try {
         const sortedUserIds = [userId, otherUserId].sort();
-        console.log('Creating channel with users:', sortedUserIds);
         
         // First check if a channel already exists
         const existingChannel = await getChannel(userId, otherUserId);
         if (existingChannel) {
-            console.log('Channel already exists:', existingChannel.url);
             return existingChannel;
         }
 

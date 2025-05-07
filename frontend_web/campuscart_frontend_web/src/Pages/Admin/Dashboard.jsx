@@ -63,7 +63,6 @@ const Dashboard = () => {
 
         // Fetch pending approvals data
         const approvalsResponse = await api.get('/product/pendingApproval');
-        console.log('Products', approvalsResponse.data);
         const approvals = approvalsResponse.data;
 
         // Calculate stats
@@ -87,8 +86,6 @@ const Dashboard = () => {
                    item.status === 'Available' ? 'Pending' : item.status,
             imagePath: item.product?.imagePath ? `http://localhost:8080/${item.product.imagePath}` : null
           }));
-
-        console.log('Mapped recent products:', recentProducts);
 
         setDashboardData(prev => ({
           ...prev,

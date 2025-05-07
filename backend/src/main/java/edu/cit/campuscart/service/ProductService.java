@@ -46,11 +46,6 @@ public class ProductService {
 		return products;
 	}
 	
-	public List<ProductEntity> getProducts(String username) {
-		List<ProductEntity> products = prepo.findByUserUsername(username);
-		return products;
-	}
-	
 	// Create a new product and associate it with a seller
 	public void postProduct(String name, String pdtDescription, float buyPrice, String imagePath, String category, String status, String conditionType, String userUsername) throws NoSuchElementException {
 		// Find the seller by username

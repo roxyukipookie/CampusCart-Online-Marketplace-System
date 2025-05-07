@@ -16,7 +16,6 @@ const Bookmarks = () => {
   };
 
   const handleCardClick = (code) => {
-    console.log('Navigating to product:', code);
     navigate(`/product/${code}`);
   };
 
