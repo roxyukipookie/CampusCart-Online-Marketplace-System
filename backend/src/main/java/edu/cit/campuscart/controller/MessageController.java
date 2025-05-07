@@ -54,7 +54,6 @@ public class MessageController {
 
     @GetMapping("/conversations/{username}")
     public ResponseEntity<List<ConversationDTO>> getConversations(@PathVariable String username) {
-        System.out.println("getConversations called for: " + username);
         return ResponseEntity.ok(messageService.getConversations(username));
     }
 } 

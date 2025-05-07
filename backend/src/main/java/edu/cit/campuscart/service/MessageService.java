@@ -67,9 +67,7 @@ public class MessageService {
 
     @Transactional(readOnly = true)
     public List<MessageDTO> getProductConversation(String username1, String username2, Integer productCode) {
-        System.out.println("getProductConversation: " + username1 + ", " + username2 + ", " + productCode);
         List<MessageEntity> messages = messageRepository.findConversationByUsersAndProduct(username1, username2, productCode);
-        System.out.println("Fetched " + messages.size() + " messages for product " + productCode);
         for (MessageEntity msg : messages) {
             System.out.println("Message: " + msg.getSender().getUsername() + " -> " + msg.getReceiver().getUsername() + " | Product: " + (msg.getProduct() != null ? msg.getProduct().getCode() : null) + " | Content: " + msg.getContent());
         }
@@ -101,7 +99,6 @@ public class MessageService {
 
     @Transactional(readOnly = true)
     public List<ConversationDTO> getConversations(String username) {
-        System.out.println("getConversations service for: " + username);
         List<MessageEntity> messages = messageRepository.findBySenderUsernameOrReceiverUsername(username, username);
         Map<String, MessageEntity> latestMessageMap = new HashMap<>();
 

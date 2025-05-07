@@ -35,8 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authorizationHeader = request.getHeader("Authorization");
-        System.out.println("Request URI: " + request.getRequestURI());
-        System.out.println("Authorization Header: " + authorizationHeader);
 
         String username = null;
         String jwt = null;
@@ -45,9 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jwt = authorizationHeader.substring(7);
             try {
                 username = jwtUtil.extractUsername(jwt);
-                System.out.println("Extracted username from token: " + username);
             } catch (Exception e) {
-                System.err.println("Error extracting username from token: " + e.getMessage());
                 chain.doFilter(request, response);
                 return;
             }
@@ -56,18 +52,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = null;
             
-            // Try to load as admin first
             try {
                 userDetails = this.adminDetailsService.loadUserByUsername(username);
-                System.out.println("User found as admin: " + username);
             } catch (UsernameNotFoundException e) {
-                // If not found as admin, try as user
                 try {
                     userDetails = this.userDetailsService.loadUserByUsername(username);
-                    System.out.println("User found as regular user: " + username);
                 } catch (UsernameNotFoundException ex) {
-                    // User not found in either service
-                    System.err.println("User not found in either service: " + username);
                     chain.doFilter(request, response);
                     return;
                 }
@@ -75,7 +65,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 if (jwtUtil.validateToken(jwt, username)) {
-                    System.out.println("Token validated successfully for user: " + username);
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
                     usernamePasswordAuthenticationToken

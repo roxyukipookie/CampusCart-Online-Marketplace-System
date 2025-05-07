@@ -50,21 +50,15 @@ public class UserService {
 	*/
 	
 	public UserEntity authenticateUser(String username, String password) {
-		System.out.println("Attempting to authenticate user: " + username);
-		UserEntity user = userRepo.findById(username).get(); //search user by username
+		UserEntity user = userRepo.findById(username).get();
 		
 		if (user == null) {
-	        System.out.println("Seller not found. Please register.");
 	        throw new NoSuchElementException("Seller not found. Please register.");
 	    }
 		
-		System.out.println("Retrieved seller: " + user.getUsername());
-		
-		// Check if the password matches using password encoder
 		if (passwordEncoder.matches(password, user.getPassword())) {
-	        return user; // Authentication successful
+	        return user;
 	    } else {
-	        System.out.println("Password does not match.");
 	        throw new RuntimeException("Invalid password");
 	    }
 	}
@@ -77,10 +71,6 @@ public class UserService {
 	public UserEntity putUserDetails(String username, UserEntity newUserDetails) throws NameNotFoundException {
 	    UserEntity user = userRepo.findById(username)
 	        .orElseThrow(() -> new NameNotFoundException("User with username: " + username + " does not exist"));
-
-	    if (newUserDetails.getProfilePhoto() != null) {
-	        System.out.println("Updated Profile Photo: " + newUserDetails.getProfilePhoto()); // Add a log here
-	    }
 	    
 	    user.setFirstName(newUserDetails.getFirstName());
 	    user.setLastName(newUserDetails.getLastName());

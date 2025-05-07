@@ -18,15 +18,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("Loading user details for username: " + username);
         
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> {
-                    System.err.println("User not found with username: " + username);
                     return new UsernameNotFoundException("User not found with username: " + username);
                 });
-
-        System.out.println("User found: " + user.getUsername());
         
         // Use a non-null default password for users without a password (e.g., OAuth users)
         String password = user.getPassword();
@@ -40,7 +36,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .roles("USER")
                 .build();
                 
-        System.out.println("User details built successfully");
         return userDetails;
     }
 }

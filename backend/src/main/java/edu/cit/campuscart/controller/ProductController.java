@@ -76,7 +76,6 @@ public class ProductController {
 			}
 
 			if (response.isEmpty()) {
-				System.out.println("No products found for user: " + username);
 				return ResponseEntity.noContent().build();
 			}
 
@@ -84,7 +83,6 @@ public class ProductController {
 		} catch (NoSuchElementException ex) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		} catch (Exception ex) {
-			System.err.println("An error occurred while retrieving products: " + ex.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
@@ -107,7 +105,6 @@ public class ProductController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("Error fetching user with username: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "An error occurred"));
         }
     }
@@ -146,10 +143,8 @@ public class ProductController {
 
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (NoSuchElementException ex) {
-			System.err.println("No products found for user: " + username);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		} catch (Exception ex) {
-			System.err.println("An error occurred while retrieving products: " + ex.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
@@ -246,7 +241,6 @@ public class ProductController {
 
 	        return ResponseEntity.ok(response);
 	    } catch (Exception ex) {
-	        System.err.println("An error occurred while retrieving the product: " + ex.getMessage());
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 	    }
 	}
@@ -271,8 +265,6 @@ public class ProductController {
 
 				// Set the image path in newProductEntity
 				newProductEntity.setImagePath(filePath.toString());
-
-				System.out.println("Image file saved: " + filePath);
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new RuntimeException("Failed to save the image file.");

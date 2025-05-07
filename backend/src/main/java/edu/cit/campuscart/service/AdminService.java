@@ -32,31 +32,21 @@ public class AdminService {
 	
 	public AdminEntity authenticateAdmin(String username, String password) {
         try {
-            System.out.println("Attempting to authenticate admin: " + username);
-            
-            // Attempt to find the admin by username
             AdminEntity admin = adminRepo.findByUsername(username).orElseThrow(() -> {
-                System.out.println("Admin not found. Please register.");
                 return new NoSuchElementException("Admin not found. Please register.");
             });
-            
-            System.out.println("Retrieved admin: " + admin.getUsername() + ", Password: " + admin.getPassword());
-            
-            // Check if the password matches
+
             if (admin.getPassword().equals(password)) {
-                return admin; // Authentication successful
+                return admin; 
             } else {
-                System.out.println("Password does not match.");
                 throw new RuntimeException("Invalid password");
             }
         } catch (NoSuchElementException e) {
-            System.err.println("Error: " + e.getMessage());
-            throw e; // Re-throwing the exception to propagate it if necessary
+            throw e; 
         } catch (RuntimeException e) {
             System.err.println("Authentication failed: " + e.getMessage());
-            throw e; // Re-throwing the exception to propagate it if necessary
+            throw e; 
         } catch (Exception e) {
-            System.err.println("An unexpected error occurred: " + e.getMessage());
             throw new RuntimeException("Unexpected error during authentication");
         }
     }
@@ -65,12 +55,7 @@ public class AdminService {
   	public AdminEntity putAdminDetails(String username, AdminEntity newAdminDetails) throws NameNotFoundException {
   	    AdminEntity admin = adminRepo.findByUsername(username)
   	        .orElseThrow(() -> new NameNotFoundException("users with username: " + username + " does not exist"));
-
-  	    if (newAdminDetails.getProfilePhoto() != null) {
-  	        System.out.println("Updated Profile Photo: " + newAdminDetails.getProfilePhoto()); 
-  	    }
   	    
-  	    //users.setProfilePhoto(newDetails.getProfilePhoto());
   	    admin.setFirstName(newAdminDetails.getFirstName());
   	    admin.setLastName(newAdminDetails.getLastName());
   	    admin.setContactNo(newAdminDetails.getContactNo());
@@ -78,8 +63,6 @@ public class AdminService {
 
   	    return adminRepo.save(admin);
   	}
-  	
-  	// ========================= Admin Management =========================
 
     // Get all admins
     public List<AdminEntity> getAllAdmins() {
@@ -206,7 +189,6 @@ public class AdminService {
   	}
     
       public String deleteUser(String role, String username) throws NameNotFoundException {
-        System.out.println("Deleting user: " + role + " " + username);
         if ("admin".equalsIgnoreCase(role)) {
             deleteAdmin(username);
             return "Admin with username '" + username + "' has been deleted successfully.";
