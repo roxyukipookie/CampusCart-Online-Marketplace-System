@@ -75,7 +75,6 @@ const AddProductForm = ({ open, handleClose }) => {
     const formData = new FormData();
     formData.append('name', productName);
     formData.append('pdtDescription', description);
-    formData.append('qtyInStock', quantity);
     formData.append('buyPrice', price);
     formData.append('category', category);
     formData.append('status', status);
